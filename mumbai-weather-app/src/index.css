@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Example: Color clusters based on dominant rain status */
+.marker-cluster-heavy div {
+    background-color: rgba(220, 38, 38, 0.7) !important;
+    /* Tailwind red-600 with opacity */
+}
+
+.marker-cluster-heavy div span {
+    color: white;
+}
+
+.marker-cluster-moderate div {
+    background-color: rgba(245, 158, 11, 0.7) !important;
+    /* Tailwind amber-500 with opacity */
+}
+
+.marker-cluster-moderate div span {
+    color: white;
+}
+
+.marker-cluster-light div {
+    background-color: rgba(59, 130, 246, 0.7) !important;
+    /* Tailwind blue-500 with opacity */
+}
+
+.marker-cluster-light div span {
+    color: white;
+}
+
+.marker-cluster-none div {
+    background-color: rgba(107, 114, 128, 0.6) !important;
+    /* Tailwind gray-500 with opacity */
+}
+
+.marker-cluster-none div span {
+    color: white;
+}
+
+/* Ensure text inside cluster is centered and visible */
+.marker-cluster div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-weight: bold;
+    color: #333;
+    /* Default text color if no status specific color is applied or for the count */
+}
+
+.marker-cluster div span {
+    font-size: 12px;
+    /* Adjust as needed */
+}
+
+/* Optional: Adjust default cluster sizes or make them more distinct if needed. Uncomment and add styles if necessary. */
+/*
+.marker-cluster-small {
+}
+
+.marker-cluster-medium {
+}
+
+.marker-cluster-large {
+}
+*/
+@layer base {
+    body {
+        @apply bg-slate-100 text-slate-800 antialiased;
+        /* For Dark Mode (if enabled in tailwind.config.js and html class="dark"): */
+        @apply dark:bg-slate-900 dark:text-slate-200;
+    }
+
+    /* Ensure map popups are not affected by dark mode text color if they have light backgrounds */
+    .leaflet-popup-content-wrapper,
+    .leaflet-popup-tip {
+        @apply text-slate-800;
+
+        /* Or your desired popup text color */
+        /* Leaflet Popup Customizations */
+        .leaflet-popup-content-wrapper {
+            @apply bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700;
+            /* Overriding some Leaflet defaults */
+            padding: 0 !important;
+            /* We'll use Tailwind padding on the inner div */
+        }
+
+        .leaflet-popup-content {
+            @apply p-3;
+            /* Apply padding to the direct content child */
+            margin: 0 !important;
+            /* Override Leaflet's margin */
+            line-height: 1.5;
+            /* Improve readability */
+            /* color is inherited from body or set on inner elements */
+        }
+
+        .leaflet-popup-tip-container {
+            /* Optional: If you want to style the tip */
+        }
+
+        .leaflet-popup-tip {
+            @apply bg-white dark:bg-slate-800 shadow-none;
+            /* Match wrapper, remove default shadow */
+            /* The border is tricky for the tip, may need more specific CSS or SVG */
+        }
+
+        /* Optional: Style for Leaflet zoom controls if desired */
+
+        .leaflet-control-zoom a {
+            @apply bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-600;
+        }
+
+        .leaflet-control-zoom a:hover {
+            @apply bg-slate-50 dark:bg-slate-600;
+        }
+
+    }
+}
