@@ -2,7 +2,8 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth, signInAnonymously } from "firebase/auth";
-import { getStorage } from "firebase/storage"; // If you plan to upload images
+import { getStorage } from "firebase/storage";
+import { getMessaging } from 'firebase/messaging';
 
 // Your web app's Firebase configuration (PASTE YOURS HERE FROM STEP 0)
 const firebaseConfig = {
@@ -29,4 +30,5 @@ signInAnonymously(auth)
         console.error("Error signing in anonymously:", error);
     });
 
-export { db, auth, storage }; // Export storage if using
+export { db, auth, storage };
+export const messaging = getMessaging(app);

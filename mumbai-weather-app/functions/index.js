@@ -1,37 +1,74 @@
-// functions/index.js
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+
+// Initialize Firebase Admin privileges
 admin.initializeApp();
 
-// Call this function (e.g., via HTTPS callable or directly in Cloud Functions logs) ONCE
-// to make a specific user an admin.
-// To make it callable via HTTPS (for easy triggering from browser after deploying):
-exports.setAdminClaim = functions.https.onCall(async (data, context) => {
-    // Ensure the caller is authenticated (optional, but good practice if you want to restrict who can call this)
-    // if (!context.auth) {
-    //   throw new functions.https.HttpsError('unauthenticated', 'The function must be called while authenticated.');
-    // }
-    // For super admin calling this, you might check if context.auth.uid is YOUR super admin UID
+/**
+ * Trigger: Runs automatically whenever a NEW document is created in the 'forecasts' collection.
+ */
+exports.sendWeatherNotification = functions.firestore
+    .document("forecasts/{forecastId}")
+    .onCreate(async (snap, context) => {
+        // 1. Get the newly posted forecast data
+        const newForecast = snap.data();
+        const forecastText = newForecast.text;
 
-    const emailToMakeAdmin = data.email; // Pass the email of the user to make admin
-    if (!emailToMakeAdmin) {
-        throw new functions.https.HttpsError('invalid-argument', 'The function must be called with an "email" argument containing the email of the user to make an admin.');
-    }
+        console.log("New forecast detected! Preparing to send notifications...");
 
-    try {
-        const user = await admin.auth().getUserByEmail(emailToMakeAdmin);
-        await admin.auth().setCustomUserClaims(user.uid, { admin: true });
-        return { message: `Success! ${emailToMakeAdmin} is now an admin.` };
-    } catch (error) {
-        console.error("Error setting admin claim:", error);
-        throw new functions.https.HttpsError('internal', 'Unable to set admin claim.', error.message);
-    }
-});
+        try {
+            // 2. Fetch all device tokens from the 'fcmTokens' collection
+            const tokensSnapshot = await admin.firestore().collection("fcmTokens").get();
 
-// Helper to check claims (for testing)
-exports.checkMyClaims = functions.https.onCall(async (data, context) => {
-    if (!context.auth) {
-        throw new functions.https.HttpsError('unauthenticated', 'The function must be called while authenticated.');
-    }
-    return context.auth.token;
-});
+            if (tokensSnapshot.empty) {
+                console.log("No devices registered for notifications. Aborting.");
+                return null;
+            }
+
+            // Extract just the token strings into an array
+            const tokens = [];
+            tokensSnapshot.forEach((doc) => {
+                tokens.push(doc.id); // Since we saved the token as the document ID!
+            });
+
+            console.log(`Found ${tokens.length} registered devices. Sending...`);
+
+            // 3. Construct the Push Notification Payload
+            const payload = {
+                notification: {
+                    title: "🌦️ Mumbai Weather Update",
+                    // Show the first 100 characters of the forecast text
+                    body: forecastText.length > 100 ? forecastText.substring(0, 100) + "..." : forecastText,
+                },
+                data: {
+                    url: "https://YOUR-WEBSITE-URL.web.app", // Change this to your actual hosted URL!
+                }
+            };
+
+            // 4. Send the notification to all tokens at once (Multicast)
+            const response = await admin.messaging().sendEachForMulticast({
+                tokens: tokens,
+                notification: payload.notification,
+                data: payload.data,
+            });
+
+            console.log(`Successfully sent ${response.successCount} messages.`);
+            if (response.failureCount > 0) {
+                console.log(`Failed to send ${response.failureCount} messages.`);
+
+                // Optional: Clean up old/expired tokens to save database space
+                response.responses.forEach(async (resp, idx) => {
+                    if (!resp.success) {
+                        const failedToken = tokens[idx];
+                        console.log(`Removing invalid token: ${failedToken}`);
+                        await admin.firestore().collection("fcmTokens").doc(failedToken).delete();
+                    }
+                });
+            }
+
+            return null;
+        } catch (error) {
+            console.error("Error sending push notifications:", error);
+            return null;
+        }
+    });

@@ -1,30 +1,42 @@
+// src/components/WeatherBackground.jsx
 import React from 'react';
 import { useBackground } from '../contexts/BackgroundContext';
 import RainAnimation from './animations/RainAnimation';
+import RealisticClouds from './animations/RealisticClouds';
+import ThunderstormAnimation from './animations/ThunderstormAnimation';
+import SunnyAnimation from './animations/SunnyAnimation'; // <-- Add this import
 
 const WeatherBackground = () => {
-    // Use your custom hook and actual variable names
     const { currentEffect, effectsEnabled } = useBackground();
 
-    // 1. If toggled off or set to None, show a default modern background
     if (!effectsEnabled || currentEffect === 'None') {
-        return <div className="fixed inset-0 z-[-1] bg-slate-100" />;
+        return <div className="fixed inset-0 z-[-1] bg-gradient-to-br from-slate-900 to-[#0f172a]" />;
     }
 
-    // 2. Switch based on the current effect
     switch (currentEffect?.toLowerCase()) {
         case 'rain':
             return <RainAnimation />;
 
-        // We will build these next!
         case 'clouds':
         case 'cloudy':
-            return <div className="fixed inset-0 z-[-1] bg-gray-300" />; // Placeholder
-        case 'sunny':
-            return <div className="fixed inset-0 z-[-1] bg-blue-400" />; // Placeholder
+            return <RealisticClouds />;
+
+        case 'thunderstorm':
+        case 'thunder':
+        case 'rain & thunder':
+            return <ThunderstormAnimation />;
+
+        case 'sunny': // <-- Add the new case!
+        case 'clear':
+            return <SunnyAnimation />;
+
+        case 'sun & partly cloudy':
+            return <div className="fixed inset-0 z-[-1] bg-gradient-to-br from-blue-400 to-blue-600" />;
+        case 'rain and cloudy':
+            return <div className="fixed inset-0 z-[-1] bg-gradient-to-br from-slate-700 to-slate-900" />;
 
         default:
-            return <div className="fixed inset-0 z-[-1] bg-slate-100" />;
+            return <div className="fixed inset-0 z-[-1] bg-gradient-to-br from-slate-900 to-[#0f172a]" />;
     }
 };
 
