@@ -147,6 +147,40 @@ function AdminPage() {
                 timestamp: serverTimestamp(),
                 adminUid: adminUser.uid
             });
+            // --- NEW: ONE-SIGNAL PUSH NOTIFICATION TRIGGER ---
+            try {
+                const osResponse = await fetch('https://onesignal.com/api/v1/notifications', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json; charset=utf-8',
+                        'Authorization': `os_v2_app_u3iktbhkzzekzocclbpqxbp27m6k6opv6gmueqfdtntb3b7pva6tj4t2l5rlhwnd5bqhhejckoh73xqmiqhqvqigxslj3m5nxyrsfdq`
+                    },
+                    body: JSON.stringify({
+                        app_id: "a6d0a984-eace-48ac-b842-585f0b85fafb",
+                        included_segments: ["Subscribed Users"],
+                        headings: { en: "🌦️ Mumbai Weather Update" },
+                        contents: {
+                            en: forecastText.length > 80 ? forecastText.substring(0, 80) + "..." : forecastText
+                        },
+                        url: "https://mumbai-weather-app.web.app"
+                    })
+                });
+
+                const osData = await osResponse.json();
+                console.log("OneSignal API Reply: ", osData);
+
+                // FIXED LOGGING: Check if there are errors from OneSignal
+                if (osData.errors) {
+                    console.error("⚠️ OneSignal rejected the push:", osData.errors);
+                } else if (osData.recipients === 0) {
+                    console.warn("⚠️ OneSignal accepted it, but delivered to 0 users.");
+                } else {
+                    console.log(`✅ Push notification sent successfully to ${osData.recipients} devices!`);
+                }
+
+            } catch (pushError) {
+                console.error("Forecast saved, but push notification failed: ", pushError);
+            }
             setForecastMessage('Forecast submitted successfully!');
             setForecastText('');
             setImageFile(null);

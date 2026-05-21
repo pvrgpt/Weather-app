@@ -3,7 +3,6 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth, signInAnonymously } from "firebase/auth";
 import { getStorage } from "firebase/storage";
-import { getMessaging } from 'firebase/messaging';
 
 // Your web app's Firebase configuration (PASTE YOURS HERE FROM STEP 0)
 const firebaseConfig = {
@@ -31,4 +30,3 @@ signInAnonymously(auth)
     });
 
 export { db, auth, storage };
-export const messaging = getMessaging(app);

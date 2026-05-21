@@ -5,12 +5,9 @@ import RainReportForm from './components/RainReportForm';
 import RainReportList from './components/RainReportList';
 import MapDisplayLeaflet from './components/MapDisplayLeaflet';
 import AdminPage from './components/AdminPage';
-
-// Import our Animated Background Wrapper
+import NotificationButton from './components/NotificationButton';
 import WeatherBackground from './components/WeatherBackground';
 
-// 1. Import Notification Manager
-import NotificationManager from './components/NotificationManager';
 
 function MainLayout() {
   return (
@@ -29,7 +26,7 @@ function MainLayout() {
 
       <main className="max-w-4xl mx-auto space-y-10 md:space-y-12 px-3 sm:px-4">
         {/* All our beautifully glassified components go here */}
-        <NotificationManager />
+        <NotificationButton />
         <ForecastDisplay />
         <RainReportForm />
         <MapDisplayLeaflet />
@@ -41,7 +38,6 @@ function MainLayout() {
 
 function App() {
   return (
-    // Added a custom selection color so when users highlight text, it matches the theme!
     <div className="min-h-screen font-sans selection:bg-sky-500/30 selection:text-sky-200 text-slate-100">
 
       {/* Our Animated Background Component goes right at the back */}

@@ -2,6 +2,20 @@
 <html lang="en">
 
 <head>
+  <!-- Other head tags... -->
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(function (OneSignal) {
+      OneSignal.init({
+        appId: "a6d0a984-eace-48ac-b842-585f0b85fafb",
+        notifyButton: {
+          enable: false,
+          colors: { 'circle.background': 'rgb(14, 165, 233)' }
+        },
+      });
+    });
+  </script>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
